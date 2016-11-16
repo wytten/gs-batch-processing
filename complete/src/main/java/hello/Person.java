@@ -8,11 +8,6 @@ import java.util.Set;
 public class Person implements Map<String, String> {
     private Map<String, String> map = new HashMap<String, String>();
 
-    
-    private String tableName;
-    
-    private String where;
-
     @Override
     public int size() {
       return map.size();
