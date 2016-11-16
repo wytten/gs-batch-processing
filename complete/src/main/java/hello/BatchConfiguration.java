@@ -1,25 +1,30 @@
 package hello;
 
+import java.io.FileInputStream;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Properties;
+
 import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+import oracle.jdbc.pool.OracleDataSource;
 
 @Configuration
 @EnableBatchProcessing
@@ -36,7 +41,7 @@ public class BatchConfiguration {
 
     // tag::readerwriterprocessor[]
     @Bean
-    public FlatFileItemReader<Person> reader() {
+    public FlatFileItemReader<Person> old_reader() {
         FlatFileItemReader<Person> reader = new FlatFileItemReader<Person>();
         reader.setResource(new ClassPathResource("sample-data.csv"));
         reader.setLineMapper(new DefaultLineMapper<Person>() {{
@@ -46,6 +51,43 @@ public class BatchConfiguration {
             setFieldSetMapper(new PersonFieldSetMapper());
         }});
         return reader;
+    }
+    
+  private DataSource oracle_datasource() {
+    OracleDataSource dataSource = null;
+    Properties secrets = new Properties();
+    try {
+      dataSource = new OracleDataSource();
+      secrets.load(new FileInputStream("secrets.properties"));
+    } catch (Exception e) {
+      throw new Error(e);
+    }
+    dataSource.setUser(secrets.getProperty("oracle.database.user"));
+    dataSource.setPassword(secrets.getProperty("oracle.database.password"));
+    dataSource.setURL(secrets.getProperty("oracle.database.url"));
+    // dataSource.setImplicitCachingEnabled(true);
+    // dataSource.setFastConnectionFailoverEnabled(true);
+    return dataSource;
+  }
+
+    // tag::readerwriterprocessor[]
+    @Bean
+    public JdbcCursorItemReader<Person> reader() {
+      JdbcCursorItemReader<Person> reader = new JdbcCursorItemReader<Person>();
+      reader.setDataSource(oracle_datasource());
+      reader.setSql("select patient_first_name, patient_last_name from sot22.drw_pay_eob");
+      reader.setRowMapper(new RowMapper<Person>() {
+
+        @Override
+        public Person mapRow(ResultSet rs, int rowNum) throws SQLException {
+          Person person = new Person();
+          person.put("firstName", rs.getString(1));
+          person.put("lastName", rs.getString(2));
+          return person;
+        }
+        
+      });
+      return reader;
     }
 
     @Bean
