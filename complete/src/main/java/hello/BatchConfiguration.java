@@ -13,6 +13,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.item.database.ItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -23,6 +24,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.JdbcUtils;
 
 import oracle.jdbc.pool.OracleDataSource;
 
@@ -112,6 +115,34 @@ public class BatchConfiguration {
         // TODO: There's a problem here, :primaryKeyColumn doesn't work so I had to hardcode eob_id
         writer.setSql("update sot22.drw_pay_eob set patient_first_name=:firstName, patient_last_name=:lastName where eob_id=:primaryKeyValue");
         writer.setDataSource(oracle_datasource());
+        writer.setItemSqlParameterSourceProvider(new ItemSqlParameterSourceProvider<Person>() {
+          
+          @Override
+          public SqlParameterSource createSqlParameterSource(Person item) {
+            return new SqlParameterSource() {
+              
+              @Override
+              public boolean hasValue(String paramName) {
+                return item.get(paramName) != null;
+              }
+              
+              @Override
+              public Object getValue(String paramName) throws IllegalArgumentException {
+                return item.get(paramName);
+              }
+              
+              @Override
+              public String getTypeName(String paramName) {
+                return null;
+              }
+              
+              @Override
+              public int getSqlType(String paramName) {
+                return JdbcUtils.TYPE_UNKNOWN;
+              }
+            };
+          }
+        });
         return writer;
     }
     // end::readerwriterprocessor[]
