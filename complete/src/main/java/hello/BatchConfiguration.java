@@ -75,14 +75,16 @@ public class BatchConfiguration {
     public JdbcCursorItemReader<Person> reader() {
       JdbcCursorItemReader<Person> reader = new JdbcCursorItemReader<Person>();
       reader.setDataSource(oracle_datasource());
-      reader.setSql("select patient_first_name, patient_last_name from sot22.drw_pay_eob");
+      reader.setSql("select eob_id, patient_first_name, patient_last_name from sot22.drw_pay_eob");
       reader.setRowMapper(new RowMapper<Person>() {
 
         @Override
         public Person mapRow(ResultSet rs, int rowNum) throws SQLException {
           Person person = new Person();
-          person.put("firstName", rs.getString(1));
-          person.put("lastName", rs.getString(2));
+          person.put("primaryKeyColumn", "eob_id");
+          person.put("primaryKeyValue", rs.getLong(1));
+          person.put("firstName", rs.getString(2));
+          person.put("lastName", rs.getString(3));
           return person;
         }
         
@@ -96,10 +98,20 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public JdbcBatchItemWriter<Person> writer() {
+    public JdbcBatchItemWriter<Person> old_writer() {
         JdbcBatchItemWriter<Person> writer = new JdbcBatchItemWriter<Person>();
         writer.setSql("INSERT INTO people (first_name, last_name) VALUES (:firstName, :lastName)");
         writer.setDataSource(dataSource);
+        return writer;
+    }
+    // end::readerwriterprocessor[]
+
+    @Bean
+    public JdbcBatchItemWriter<Person> writer() {
+        JdbcBatchItemWriter<Person> writer = new JdbcBatchItemWriter<Person>();
+        // TODO: There's a problem here, :primaryKeyColumn doesn't work so I had to hardcode eob_id
+        writer.setSql("update sot22.drw_pay_eob set patient_first_name=:firstName, patient_last_name=:lastName where eob_id=:primaryKeyValue");
+        writer.setDataSource(oracle_datasource());
         return writer;
     }
     // end::readerwriterprocessor[]

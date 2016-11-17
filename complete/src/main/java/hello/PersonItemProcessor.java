@@ -12,7 +12,15 @@ public class PersonItemProcessor implements ItemProcessor<Person, Person> {
   public Person process(final Person person) throws Exception {
     final Person transformedPerson = new Person();
     for (String key : person.keySet()) {
-      transformedPerson.put(key, person.get(key).toUpperCase());
+      Object value = person.get(key);
+      if (value instanceof String) {
+        value = ((String) value).toUpperCase();
+      } else if (value instanceof Long) {
+        value = (Long) value;
+      } else {
+        log.info("huh (" + value + ")");
+      }
+      transformedPerson.put(key, value);
     }
 
     log.info("Converting (" + person + ") into (" + transformedPerson + ")");

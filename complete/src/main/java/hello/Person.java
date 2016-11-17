@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class Person implements Map<String, String> {
-    private Map<String, String> map = new HashMap<String, String>();
+public class Person implements Map<String, Object> {
+    private Map<String, Object> map = new HashMap<String, Object>();
 
     @Override
     public int size() {
@@ -29,22 +29,22 @@ public class Person implements Map<String, String> {
     }
 
     @Override
-    public String get(Object key) {
+    public Object get(Object key) {
       return map.get(key);
     }
 
     @Override
-    public String put(String key, String value) {
+    public Object put(String key, Object value) {
       return map.put(key, value);
     }
 
     @Override
-    public String remove(Object key) {
+    public Object remove(Object key) {
       return map.remove(key);
     }
 
     @Override
-    public void putAll(Map<? extends String, ? extends String> m) {
+    public void putAll(Map<? extends String, ? extends Object> m) {
       map.putAll(m);
     }
 
@@ -59,16 +59,16 @@ public class Person implements Map<String, String> {
     }
 
     @Override
-    public Collection<String> values() {
+    public Collection<Object> values() {
       return map.values();
     }
 
     @Override
-    public Set<java.util.Map.Entry<String, String>> entrySet() {
+    public Set<java.util.Map.Entry<String, Object>> entrySet() {
       return map.entrySet();
     }
     
     public String toString() {
-      return String.format("%s %s", get("firstName"), get("lastName"));
+      return String.format("%d %s %s", get("primaryKeyValue"), get("firstName"), get("lastName"));
     }
 }
