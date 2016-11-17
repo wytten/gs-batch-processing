@@ -18,12 +18,12 @@ public class PersonItemProcessor implements ItemProcessor<Person, Person> {
       } else if (value instanceof Long) {
         value = (Long) value;
       } else {
-        log.info("huh (" + value + ")");
+        throw new IllegalStateException(""+value);
       }
       transformedPerson.put(key, value);
     }
 
-    log.info("Converting (" + person + ") into (" + transformedPerson + ")");
+    log.debug("Converting (" + person + ") into (" + transformedPerson + ")");
 
     return transformedPerson;
   }
