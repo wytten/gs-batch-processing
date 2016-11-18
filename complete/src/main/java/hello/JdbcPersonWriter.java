@@ -23,7 +23,7 @@ public class JdbcPersonWriter extends JdbcBatchItemWriter<Person> {
 
   protected static final String UPDATE = "update %s set %s where %s";
 
-  protected static final String ASSIGN = "%s=:value%d";
+  protected static final String ASSIGN = "%s=:%s";
 
   protected static final String WHERE = "%s=%d";
 
@@ -38,23 +38,25 @@ public class JdbcPersonWriter extends JdbcBatchItemWriter<Person> {
 
       long start = System.currentTimeMillis();
       for (Person person : items) {
-        String tableName = person.getTableName();
-        String primaryKeyColumn = person.getPrimaryKeyColumn();
-        Long primaryKeyValue = person.getPrimaryKeyValue();
-        String where = String.format(WHERE, primaryKeyColumn, primaryKeyValue);
+        // construct the list of sql assignments and build related params map
         List<String> assigns = new ArrayList<String>();
         int q = 0;
         Map<String, String> params = new HashMap<String, String>();;
         for (String columnName : person.keySet()) {
           String value = (String) person.get(columnName);
-          assigns.add(String.format(ASSIGN, columnName, q));
-          params.put(String.format("value%d", q++), value);
+          String rhs = String.format("value%d", q++);
+          params.put(rhs, value);
+          assigns.add(String.format(ASSIGN, columnName, rhs));
         }
-        String allAssigns = StringUtils.collectionToCommaDelimitedString(assigns);
-        String updateStatement = String.format(UPDATE, tableName, allAssigns, where);
+        
+        // put the update statement together
+        final String allAssigns = StringUtils.collectionToCommaDelimitedString(assigns);
+        final String where = String.format(WHERE, person.getPrimaryKeyColumn(), person.getPrimaryKeyValue());
+        final String updateStatement = String.format(UPDATE, person.getTableName(), allAssigns, where);
         if (logger.isDebugEnabled()) {
           logger.debug(updateStatement);
         }
+        
         @SuppressWarnings("unchecked")
         Map<String, String>[] batchValues = (Map<String, String>[]) new Map[] {params};
         namedParameterJdbcTemplate.batchUpdate(updateStatement, batchValues);
