@@ -14,8 +14,7 @@ public class PersonItemProcessor implements ItemProcessor<Person, Person> {
     for (String key : person.keySet()) {
       Object value = person.get(key);
       if (value instanceof String) {
-        // TODO: Don't remove apostrophes
-        value = ((String) value).toUpperCase().replaceAll("'", "");
+        value = ((String) value).toUpperCase();
       } else if (value instanceof Long) {
         value = (Long) value;
       } else {
