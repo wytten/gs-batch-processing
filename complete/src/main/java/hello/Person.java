@@ -1,13 +1,28 @@
 package hello;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.util.StringUtils;
+
 public class Person {
     private Map<String, Object> map = new HashMap<String, Object>();
+    private String tableName;
+    private String primaryKeyColumn;
+    private Long primaryKeyValue;
 
+    public Person() {
+    }
+
+    public Person(Person person) {
+      this.tableName = person.tableName;
+      this.primaryKeyColumn = person.primaryKeyColumn;
+      this.primaryKeyValue = person.primaryKeyValue;
+    }
 
     public int size() {
       return map.size();
@@ -69,6 +84,42 @@ public class Person {
     }
     
     public String toString() {
-      return String.format("%d %s %s", get("primaryKeyValue"), get("firstName"), get("lastName"));
+      List<String> columnValues = new ArrayList<String>();
+      for (String columnName : keySet()) {
+        String value = (String) get(columnName);
+        columnValues.add(String.format("%s='%s'", columnName, value));
+      }
+      String allColumnValues = StringUtils.collectionToCommaDelimitedString(columnValues);
+      return String.format("%d %s", get("primaryKeyValue"), allColumnValues);
+    }
+
+
+    public String getTableName() {
+      return tableName;
+    }
+
+
+    public String getPrimaryKeyColumn() {
+      return primaryKeyColumn;
+    }
+
+
+    public Long getPrimaryKeyValue() {
+      return primaryKeyValue;
+    }
+
+
+    public void setTableName(String tableName) {
+      this.tableName = tableName;
+    }
+
+
+    public void setPrimaryKeyColumn(String primaryKeyColumn) {
+      this.primaryKeyColumn = primaryKeyColumn;
+    }
+
+
+    public void setPrimaryKeyValue(Long primaryKeyValue) {
+      this.primaryKeyValue = primaryKeyValue;
     }
 }

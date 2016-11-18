@@ -10,7 +10,7 @@ public class PersonItemProcessor implements ItemProcessor<Person, Person> {
   
   @Override
   public Person process(final Person person) throws Exception {
-    final Person transformedPerson = new Person();
+    final Person transformedPerson = new Person(person);
     for (String key : person.keySet()) {
       Object value = person.get(key);
       if (value instanceof String) {
