@@ -1,4 +1,6 @@
-1. Install secrets.properties in this directory.  (It is not provided for obvious reasons)
+0. Import 'complete' directory as project into Eclipse
+
+1. Install secrets.properties at 'complete' project top level.  (It is not provided for obvious reasons)
 It should contain valid property values for the following properties:
 oracle.database.url=...
 oracle.database.user=...
