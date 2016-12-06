@@ -32,8 +32,9 @@ public class BatchConfiguration {
     public StepBuilderFactory stepBuilderFactory;
 
     @Autowired
-    public DataSource dataSource;
+    public DataSource dataSource; // an in-memory database used by Spring Batch for its own purposes
 
+    // The Oracle DataSource we are to update
     private DataSource oracle_datasource() {
       OracleDataSource dataSource = null;
       Properties secrets = new Properties();
