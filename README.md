@@ -1,4 +1,4 @@
-0. Import 'complete' directory as project into Eclipse
+0. (cd complete; mvn eclipse:eclipse) and then import 'complete' directory as project into Eclipse
 
 1. Install secrets.properties at 'complete' project top level.  (It is not provided for obvious reasons)
 It should contain valid property values for the following properties:
