@@ -12,16 +12,14 @@ import org.springframework.util.StringUtils;
 public class Person {
     private Map<String, Object> map = new HashMap<String, Object>();
     private String tableName;
-    private String primaryKeyColumn;
-    private Long primaryKeyValue;
+    private String rowId;
 
     public Person() {
     }
 
     public Person(Person person) {
       this.tableName = person.tableName;
-      this.primaryKeyColumn = person.primaryKeyColumn;
-      this.primaryKeyValue = person.primaryKeyValue;
+      this.rowId = person.rowId;
     }
 
     public int size() {
@@ -99,13 +97,8 @@ public class Person {
     }
 
 
-    public String getPrimaryKeyColumn() {
-      return primaryKeyColumn;
-    }
-
-
-    public Long getPrimaryKeyValue() {
-      return primaryKeyValue;
+    public String getRowId() {
+      return rowId;
     }
 
 
@@ -114,12 +107,7 @@ public class Person {
     }
 
 
-    public void setPrimaryKeyColumn(String primaryKeyColumn) {
-      this.primaryKeyColumn = primaryKeyColumn;
-    }
-
-
-    public void setPrimaryKeyValue(Long primaryKeyValue) {
-      this.primaryKeyValue = primaryKeyValue;
+    public void setRowId(String rowId) {
+      this.rowId = rowId;
     }
 }

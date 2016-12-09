@@ -57,15 +57,14 @@ public class BatchConfiguration {
     public JdbcCursorItemReader<Person> reader() {
       JdbcCursorItemReader<Person> reader = new JdbcCursorItemReader<Person>();
       reader.setDataSource(oracle_datasource());
-      reader.setSql("select eob_id, patient_first_name, patient_last_name from sot22.drw_pay_eob");
+      reader.setSql("select rowid, patient_first_name, patient_last_name from sot22.drw_pay_eob");
       reader.setRowMapper(new RowMapper<Person>() {
 
         @Override
         public Person mapRow(ResultSet rs, int rowNum) throws SQLException {
           Person person = new Person();
           person.setTableName("sot22.drw_pay_eob");
-          person.setPrimaryKeyColumn("eob_id");
-          person.setPrimaryKeyValue(rs.getLong(1));
+          person.setRowId(rs.getString(1));
           person.put("patient_first_name", rs.getString(2));
           person.put("patient_last_name", rs.getString(3));
           return person;
