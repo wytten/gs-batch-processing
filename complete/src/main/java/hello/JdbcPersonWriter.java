@@ -25,7 +25,7 @@ public class JdbcPersonWriter extends JdbcBatchItemWriter<Person> {
 
   protected static final String ASSIGN = "%s=:%s";
 
-  protected static final String WHERE = "rowid='%s'";
+  protected static final String WHERE = "rowid=:%s";
 
   @Override
   public void write(List<? extends Person> items) throws Exception {
@@ -49,10 +49,15 @@ public class JdbcPersonWriter extends JdbcBatchItemWriter<Person> {
           assigns.add(String.format(ASSIGN, columnName, rhs));
         }
         
+        // finally add the rowid value for the where clause to the params map
+        String rhs = String.format("value%d", q++);
+        params.put(rhs, person.getRowId());
+
         // put the update statement together
         final String allAssigns = StringUtils.collectionToCommaDelimitedString(assigns);
-        final String where = String.format(WHERE, person.getRowId());
+        final String where = String.format(WHERE, rhs);
         final String updateStatement = String.format(UPDATE, person.getTableName(), allAssigns, where);
+        
         if (logger.isDebugEnabled()) {
           logger.debug(updateStatement);
         }
